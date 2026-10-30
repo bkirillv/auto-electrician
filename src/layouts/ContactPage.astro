@@ -1,0 +1,65 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ContactActions from '../components/ContactActions.astro';
+import Icon from '../components/Icon.astro';
+import { business, contactLinks } from '../data/business';
+import { routes, ui, type Locale } from '../i18n';
+
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const isRu = locale === 'ru';
+const labels = ui[locale];
+const mapEmbed = 'https://yandex.kz/map-widget/v1/?ll=73.093866%2C49.801082&mode=whatshere&whatshere%5Bpoint%5D=73.094039%2C49.800755&whatshere%5Bzoom%5D=17&z=18.8';
+const copy = isRu ? {
+  meta: 'Контакты автоэлектрика в Караганде — Берик',
+  description: 'Телефон и WhatsApp автоэлектрика Берика в Караганде. Локация мастерской в Новом городе, район имени Казыбек би, и информация о выезде.',
+  eyebrow: 'Связаться с мастером', title: 'Контакты автоэлектрика Берика',
+  lead: 'Перед поездкой в мастерскую позвоните или напишите: согласуем время, точку и формат диагностики.',
+  phone: 'Телефон', phoneText: 'Звонки и сообщения по вопросам диагностики и ремонта.',
+  workshop: 'Мастерская', workshopText: 'Новый город, район имени Казыбек би, Караганда. Точную точку въезда уточните перед поездкой.',
+  schedule: 'Время работы', scheduleText: 'Подтверждённый график не опубликован. Приём и выезд согласовываются заранее.',
+  callout: 'Выезд', calloutText: 'Возможность выезда зависит от адреса, симптомов автомобиля и загрузки мастера.',
+  mapTitle: 'Локация в Яндекс Картах', mapText: 'Точка передана заказчиком. Перед выездом уточните у Берика точное место встречи.', route: 'Построить маршрут',
+  prepTitle: 'Что написать в первом сообщении', prep: ['Марка, модель и год автомобиля', 'Что происходит при попытке запуска или во время движения', 'Какие индикаторы горят на панели', 'Где находится автомобиль и нужен ли выезд'],
+  note: 'Чем точнее описание симптома, тем проще подготовиться к проверке.'
+} : {
+  meta: 'Қарағандыдағы автоэлектрик Берік — байланыс',
+  description: 'Қарағандыдағы автоэлектрик Беріктің телефоны мен WhatsApp нөмірі. Жаңа қаладағы шеберхана орны және шақырту туралы ақпарат.',
+  eyebrow: 'Шебермен байланысу', title: 'Автоэлектрик Беріктің байланыстары',
+  lead: 'Шеберханаға келмес бұрын қоңырау шалыңыз немесе жазыңыз: уақытты, нүктені және диагностика форматын келісеміз.',
+  phone: 'Телефон', phoneText: 'Диагностика және жөндеу туралы қоңыраулар мен хабарламалар.',
+  workshop: 'Шеберхана', workshopText: 'Жаңа қала, Қазыбек би атындағы аудан, Қарағанды. Кіретін нақты нүктені келмес бұрын нақтылаңыз.',
+  schedule: 'Жұмыс уақыты', scheduleText: 'Расталған кесте жарияланбаған. Қабылдау және шақырту алдын ала келісіледі.',
+  callout: 'Шақырту', calloutText: 'Шығу мүмкіндігі мекенжайға, автокөлік белгісіне және шебердің жүктемесіне байланысты.',
+  mapTitle: 'Яндекс Картадағы орын', mapText: 'Нүктені тапсырыс беруші берді. Жолға шықпас бұрын кездесетін нақты орынды Берікпен нақтылаңыз.', route: 'Бағыт құру',
+  prepTitle: 'Алғашқы хабарламада не жазу керек', prep: ['Автокөліктің маркасы, моделі және жылы', 'Іске қосқанда немесе қозғалыста не болады', 'Панельде қандай индикаторлар жанады', 'Автокөлік қайда және шақырту қажет пе'],
+  note: 'Белгіні неғұрлым нақты сипаттасаңыз, тексеруге дайындалу соғұрлым оңай.'
+};
+---
+
+<BaseLayout title={copy.meta} description={copy.description} locale={locale} routeKey="contacts">
+  <Breadcrumbs locale={locale} items={[{ label: labels.home, href: routes.home[locale] }, { label: labels.contacts }]} />
+  <section class="contact-hero section">
+    <div class="container contact-hero-grid">
+      <div><span class="eyebrow">{copy.eyebrow}</span><h1>{copy.title}</h1><p class="lead">{copy.lead}</p><ContactActions locale={locale} directions /></div>
+      <div class="contact-card-main"><span>{copy.phone}</span><a href={contactLinks.phone}>{business.phoneDisplay}</a><p>{copy.phoneText}</p></div>
+    </div>
+  </section>
+  <section class="section section-tint">
+    <div class="container contact-info-grid">
+      <article><Icon name="pin" size={28} /><h2>{copy.workshop}</h2><p>{copy.workshopText}</p></article>
+      <article><Icon name="clock" size={28} /><h2>{copy.schedule}</h2><p>{copy.scheduleText}</p></article>
+      <article><Icon name="key" size={28} /><h2>{copy.callout}</h2><p>{copy.calloutText}</p></article>
+    </div>
+  </section>
+  <section class="section map-section">
+    <div class="container map-grid">
+      <div><span class="eyebrow">{isRu ? 'Новый город · Караганда' : 'Жаңа қала · Қарағанды'}</span><h2>{copy.mapTitle}</h2><p>{copy.mapText}</p><a class="button button-primary" href={business.maps.yandex} target="_blank" rel="noopener noreferrer" data-event="click_directions"><Icon name="pin" size={20} />{copy.route}</a></div>
+      <div class="map-frame"><iframe src={mapEmbed} width="560" height="400" allowfullscreen title={copy.mapTitle} loading="lazy"></iframe></div>
+    </div>
+  </section>
+  <section class="section section-dark">
+    <div class="container dark-grid"><div><span class="eyebrow light">{isRu ? 'Чтобы начать' : 'Бастау үшін'}</span><h2>{copy.prepTitle}</h2><p>{copy.note}</p></div><ul class="number-list">{copy.prep.map((item, index) => <li><span>{index + 1}</span>{item}</li>)}</ul></div>
+  </section>
+</BaseLayout>

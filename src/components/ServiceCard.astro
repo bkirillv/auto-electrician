@@ -1,0 +1,15 @@
+---
+import type { Service } from '../data/services';
+import Icon from './Icon.astro';
+import { path } from '../utils/paths';
+import type { Locale } from '../i18n';
+import { ui } from '../i18n';
+interface Props { service: Service; locale?: Locale; }
+const { service, locale = 'ru' } = Astro.props;
+---
+
+<article class="service-card">
+  <span class="service-icon"><Icon name={service.icon} size={28} /></span>
+  <div><h3>{service.title}</h3><p>{service.short}</p></div>
+  {service.href && <a href={path(service.href)} data-event="click_service" aria-label={`${ui[locale].details}: ${service.title}`}>{ui[locale].details} <Icon name="arrow" size={18} /></a>}
+</article>

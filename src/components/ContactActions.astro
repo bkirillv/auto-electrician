@@ -1,0 +1,29 @@
+---
+import Icon from './Icon.astro';
+import { business, contactLinks } from '../data/business';
+import type { Locale } from '../i18n';
+import { ui } from '../i18n';
+
+interface Props {
+  compact?: boolean;
+  dark?: boolean;
+  directions?: boolean;
+  locale?: Locale;
+}
+
+const { compact = false, dark = false, directions = false, locale = 'ru' } = Astro.props;
+const labels = ui[locale];
+const whatsappLink = `https://wa.me/${business.whatsapp}?text=${encodeURIComponent(locale === 'ru' ? business.whatsappText : business.whatsappTextKz)}`;
+---
+
+<div class:list={['contact-actions', { compact, dark }]}> 
+  <a class="button button-primary" href={contactLinks.phone} data-event="click_phone">
+    <Icon name="phone" size={20} />
+    <span>{compact ? labels.phone : business.phoneDisplay}</span>
+  </a>
+  <a class="button button-whatsapp" href={whatsappLink} target="_blank" rel="noopener noreferrer" data-event="click_whatsapp">
+    <Icon name="message" size={20} />
+    <span>{labels.whatsapp}</span>
+  </a>
+  {directions && <a class="button button-secondary" href={business.olxUrl} target="_blank" rel="noopener noreferrer" data-event="click_olx_contact">{labels.olx} <Icon name="arrow" size={18} /></a>}
+</div>

@@ -1,0 +1,139 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ContactActions from '../components/ContactActions.astro';
+import FAQ, { type FAQItem } from '../components/FAQ.astro';
+import Icon from '../components/Icon.astro';
+import { business } from '../data/business';
+import { routes, ui, type Locale, type RouteKey } from '../i18n';
+import { path } from '../utils/paths';
+
+interface Props {
+  locale: Locale;
+  routeKey: Exclude<RouteKey, 'home' | 'contacts' | 'privacy'>;
+  title: string;
+  metaTitle: string;
+  description: string;
+  eyebrow: string;
+  lead: string;
+  symptomsTitle: string;
+  symptomsIntro: string;
+  symptoms: string[];
+  checksTitle: string;
+  checks: string[];
+  processTitle: string;
+  process: { title: string; text: string }[];
+  prepareTitle: string;
+  prepare: string[];
+  faq: FAQItem[];
+  serviceName: string;
+  related: { title: string; href: string; text: string }[];
+}
+
+const props = Astro.props;
+const { locale, routeKey } = props;
+const labels = ui[locale];
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: props.serviceName,
+  description: props.description,
+  serviceType: props.serviceName,
+  areaServed: { '@type': 'City', name: locale === 'ru' ? 'Караганда' : 'Қарағанды' },
+  provider: {
+    '@type': 'AutoRepair',
+    name: business.name,
+    telephone: business.phone
+  }
+};
+---
+
+<BaseLayout title={props.metaTitle} description={props.description} schema={serviceSchema} locale={locale} routeKey={routeKey}>
+  <Breadcrumbs locale={locale} items={[{ label: labels.home, href: routes.home[locale] }, { label: props.serviceName }]} />
+  <section class="service-hero">
+    <div class="container service-hero-grid">
+      <div>
+        <span class="eyebrow">{props.eyebrow}</span>
+        <h1>{props.title}</h1>
+        <p class="lead">{props.lead}</p>
+        <ContactActions locale={locale} directions />
+      </div>
+      <div class="diagnostic-panel" aria-label={locale === 'ru' ? 'Схема последовательной диагностики' : 'Диагностика реттілігінің сызбасы'}>
+        <span class="panel-label">{locale === 'ru' ? 'Принцип работы' : 'Жұмыс қағидасы'}</span>
+        <div class="signal-line"><span></span><i></i><span></span><i></i><span></span></div>
+        <div class="panel-steps">
+          <span>{locale === 'ru' ? 'Симптом' : 'Белгі'}</span>
+          <span>{locale === 'ru' ? 'Проверка' : 'Тексеру'}</span>
+          <span>{locale === 'ru' ? 'Причина' : 'Себеп'}</span>
+        </div>
+        <strong>{locale === 'ru' ? 'Сначала найти причину — затем ремонтировать' : 'Алдымен себебін табу — содан кейін жөндеу'}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split-content">
+      <div>
+        <span class="eyebrow">{locale === 'ru' ? 'Когда обращаться' : 'Қашан хабарласу керек'}</span>
+        <h2>{props.symptomsTitle}</h2>
+        <p>{props.symptomsIntro}</p>
+      </div>
+      <ul class="check-list symptom-list">
+        {props.symptoms.map((item) => <li><Icon name="check" size={19} /><span>{item}</span></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section-tint">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">{locale === 'ru' ? 'Диагностика по фактам' : 'Нақты диагностика'}</span>
+        <h2>{props.checksTitle}</h2>
+      </div>
+      <div class="check-grid">
+        {props.checks.map((item, index) => <article><span>{String(index + 1).padStart(2, '0')}</span><p>{item}</p></article>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading">
+        <span class="eyebrow">{locale === 'ru' ? 'Понятный порядок' : 'Түсінікті тәртіп'}</span>
+        <h2>{props.processTitle}</h2>
+      </div>
+      <div class="process-grid">
+        {props.process.map((step, index) => <article><span class="step-number">{index + 1}</span><h3>{step.title}</h3><p>{step.text}</p></article>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-dark">
+    <div class="container dark-grid">
+      <div>
+        <span class="eyebrow light">{locale === 'ru' ? 'Перед обращением' : 'Хабарласпас бұрын'}</span>
+        <h2>{props.prepareTitle}</h2>
+        <p>{locale === 'ru' ? 'Эти сведения помогут быстрее понять ситуацию и подготовиться к диагностике.' : 'Бұл мәліметтер жағдайды жылдам түсініп, диагностикаға дайындалуға көмектеседі.'}</p>
+      </div>
+      <ul class="number-list">{props.prepare.map((item, index) => <li><span>{index + 1}</span>{item}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="section related-section">
+    <div class="container">
+      <div class="section-heading"><span class="eyebrow">{locale === 'ru' ? 'Может быть полезно' : 'Пайдалы болуы мүмкін'}</span><h2>{locale === 'ru' ? 'Связанные услуги' : 'Байланысты қызметтер'}</h2></div>
+      <div class="related-grid">
+        {props.related.map((item) => <a href={path(item.href)}><h3>{item.title}</h3><p>{item.text}</p><span>{labels.details} <Icon name="arrow" size={18} /></span></a>)}
+      </div>
+    </div>
+  </section>
+
+  <FAQ items={props.faq} title={locale === 'ru' ? 'Вопросы об услуге' : 'Қызмет туралы сұрақтар'} locale={locale} />
+
+  <section class="final-cta">
+    <div class="container final-cta-inner">
+      <div><span class="eyebrow light">{locale === 'ru' ? 'Берик · автоэлектрик' : 'Берік · автоэлектрик'}</span><h2>{locale === 'ru' ? 'Опишите симптом — договоримся о диагностике' : 'Белгіні сипаттаңыз — диагностика туралы келісеміз'}</h2></div>
+      <ContactActions locale={locale} compact />
+    </div>
+  </section>
+</BaseLayout>

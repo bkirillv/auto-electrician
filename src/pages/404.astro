@@ -1,0 +1,7 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { path } from '../utils/paths';
+---
+<BaseLayout title="Страница не найдена — Автоэлектрик Берик" description="Запрошенная страница не найдена." noindex>
+  <section class="not-found section"><div class="container narrow"><span class="error-code">404</span><h1>Страница не найдена</h1><p>Возможно, адрес изменился или в ссылке есть ошибка.</p><a class="button button-primary" href={path('/')}>Вернуться на главную</a></div></section>
+</BaseLayout>

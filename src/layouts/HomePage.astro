@@ -1,0 +1,224 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ContactActions from '../components/ContactActions.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import FAQ from '../components/FAQ.astro';
+import Icon from '../components/Icon.astro';
+import { business, contactLinks } from '../data/business';
+import { services, servicesKz, symptoms, symptomsKz, serviceSchema } from '../data/services';
+import { routes, type Locale } from '../i18n';
+import { path } from '../utils/paths';
+
+interface Props { locale: Locale; }
+const { locale } = Astro.props;
+const isRu = locale === 'ru';
+const serviceList = isRu ? services : servicesKz;
+const symptomList = isRu ? symptoms : symptomsKz;
+const whatsappLink = `https://wa.me/${business.whatsapp}?text=${encodeURIComponent(isRu ? business.whatsappText : business.whatsappTextKz)}`;
+
+const copy = isRu ? {
+  title: 'Автоэлектрик в Караганде — диагностика и ремонт',
+  meta: 'Автоэлектрик Берик в Караганде — диагностика и ремонт',
+  description: 'Диагностика и ремонт автоэлектрики в Караганде. Компьютерная диагностика с объяснением, ремонт проводки, поиск утечки тока. Мастерская и выезд.',
+  lead: 'Находим причину неисправности, объясняем результат и ремонтируем только то, что действительно вышло из строя.',
+  tags: ['Компьютерная диагностика', 'Ремонт проводки', 'Выезд по согласованию'],
+  visualTitle: 'Электрика без догадок',
+  visualText: 'Симптом → проверка → точная причина',
+  workshop: 'Приехать в мастерскую',
+  workshopText: 'Мастерская находится в центре Караганды. Точную точку и удобное время согласуйте по телефону или WhatsApp.',
+  callout: 'Вызвать автоэлектрика',
+  calloutText: 'Если автомобиль не заводится или не может приехать, опишите ситуацию — Берик уточнит возможность выезда.',
+  choose: 'Как удобнее обратиться',
+  chooseTitle: 'Мастерская или выезд',
+  symptomsEyebrow: 'Начните с симптома',
+  symptomsTitle: 'Что случилось с автомобилем?',
+  symptomsText: 'Не обязательно знать название детали. Расскажите, что происходит — диагностика начнётся с проверки симптома.',
+  servicesEyebrow: 'Что можно проверить',
+  servicesTitle: 'Диагностика и ремонт автоэлектрики',
+  servicesText: 'Работы, которые подтверждены объявлением мастера и описанием заказчика.',
+  approachEyebrow: 'Подход к работе',
+  approachTitle: 'Сначала причина. Потом решение.',
+  approachText: 'Задача диагностики — не менять детали наугад, а последовательно проверить цепь и найти место неисправности.',
+  benefits: [
+    ['Объяснение результата', 'После проверки мастер объяснит, что обнаружено и какие действия нужны дальше.'],
+    ['Ремонт по неисправности', 'Ремонт или замена только неисправного компонента, а не всего подряд.'],
+    ['Работа с разными марками', 'В объявлении указана диагностика и ремонт автомобилей всех марок.'],
+    ['Удобный формат', 'Можно приехать в мастерскую в центре города или согласовать выезд.']
+  ],
+  processEyebrow: 'Как проходит работа',
+  processTitle: 'От обращения до исправного автомобиля',
+  process: [
+    ['Опишите проблему', 'Марка, модель, год и симптомы помогают заранее понять, с чего начать.'],
+    ['Согласуйте формат', 'Приезд в мастерскую или выезд — в зависимости от состояния автомобиля и адреса.'],
+    ['Проверка и причина', 'Мастер проверяет питание, сигналы, проводку и связанные компоненты.'],
+    ['Решение', 'После объяснения результата согласовываются ремонт или замена неисправного узла.']
+  ],
+  honest: 'Без выдуманных обещаний',
+  honestTitle: 'Стоимость — после понимания задачи',
+  honestText: 'Цена зависит от автомобиля, характера неисправности, времени поиска и необходимых деталей. Опишите симптомы — мастер уточнит формат диагностики и дальнейшие шаги.',
+  faq: [
+    { question: 'Можно ли вызвать автоэлектрика на место?', answer: 'Да, выезд указан в объявлении. Возможность и время зависят от адреса, симптомов и текущей загрузки — уточните по телефону или WhatsApp.' },
+    { question: 'Что сообщить перед диагностикой?', answer: 'Марку, модель и год автомобиля, что именно произошло, какие индикаторы горят и заводится ли двигатель. Если есть фото ошибок, их можно отправить в WhatsApp.' },
+    { question: 'Можно ли просто считать ошибки?', answer: 'Компьютерная диагностика включает считывание данных и объяснение результатов. Код ошибки сам по себе не всегда указывает на сломанную деталь, поэтому может потребоваться дополнительная проверка.' },
+    { question: 'Почему аккумулятор разряжается за ночь?', answer: 'Причиной может быть утечка тока, неисправный потребитель, проводка или сам аккумулятор. Нужно измерить ток покоя и последовательно проверить цепи.' },
+    { question: 'Есть ли гарантия на ремонт проводки?', answer: 'В OLX-объявлении указана пожизненная гарантия на соединения проводки. Условия и область действия нужно обязательно уточнить у мастера до ремонта.' },
+    { question: 'Сколько стоит диагностика?', answer: 'Фиксированная цена не опубликована. Стоимость зависит от автомобиля, симптомов и объёма проверок; её следует уточнить при обращении.' }
+  ],
+  contactEyebrow: 'Контакты и зона работы',
+  contactTitle: 'Автоэлектрик Берик в Караганде',
+  location: 'Локация мастерской',
+  locationText: 'Новый город, район имени Казыбек би. Перед поездкой согласуйте точное место и время.',
+  route: 'Открыть в Яндекс Картах',
+  area: 'Выезд по Караганде',
+  areaText: 'Возможность выезда по конкретному адресу уточняется при обращении.',
+  schedule: 'Время по договорённости',
+  scheduleText: 'Подтверждённый график не опубликован — позвоните или напишите перед поездкой.',
+  finalTitle: 'Расскажите, что произошло с автомобилем',
+  finalText: 'Позвоните или отправьте сообщение в WhatsApp: марка, модель, год и краткое описание симптома.'
+} : {
+  title: 'Қарағандыдағы автоэлектрик — диагностика және жөндеу',
+  meta: 'Қарағандыдағы автоэлектрик Берік — диагностика және жөндеу',
+  description: 'Қарағандыда автокөлік электр жабдығын диагностикалау және жөндеу. Компьютерлік диагностика, сымдарды жөндеу, токтың ағуын іздеу. Шеберхана және шақырту.',
+  lead: 'Ақаудың себебін табамыз, нәтижесін түсіндіреміз және шынымен істен шыққан бөлшекті ғана жөндейміз.',
+  tags: ['Компьютерлік диагностика', 'Сымдарды жөндеу', 'Келісім бойынша шақырту'],
+  visualTitle: 'Болжамсыз диагностика',
+  visualText: 'Белгі → тексеру → нақты себеп',
+  workshop: 'Шеберханаға келу',
+  workshopText: 'Шеберхана Қарағанды орталығында орналасқан. Нақты орынды және ыңғайлы уақытты телефон немесе WhatsApp арқылы келісіңіз.',
+  callout: 'Автоэлектрикті шақырту',
+  calloutText: 'Егер автокөлік іске қосылмаса немесе келе алмаса, жағдайды сипаттаңыз — Берік шығу мүмкіндігін нақтылайды.',
+  choose: 'Қалай хабарласқан ыңғайлы',
+  chooseTitle: 'Шеберхана немесе шақырту',
+  symptomsEyebrow: 'Белгіден бастаңыз',
+  symptomsTitle: 'Автокөлікке не болды?',
+  symptomsText: 'Бөлшектің атауын білу міндетті емес. Не болып жатқанын айтыңыз — диагностика белгіні тексеруден басталады.',
+  servicesEyebrow: 'Нені тексеруге болады',
+  servicesTitle: 'Автоэлектрик диагностикасы және жөндеу',
+  servicesText: 'Шебердің хабарландыруында және тапсырыс берушінің сипаттамасында расталған жұмыстар.',
+  approachEyebrow: 'Жұмыс тәсілі',
+  approachTitle: 'Алдымен себеп. Содан кейін шешім.',
+  approachText: 'Диагностиканың мақсаты — бөлшектерді болжап ауыстыру емес, тізбекті ретімен тексеріп, ақауды табу.',
+  benefits: [
+    ['Нәтижені түсіндіру', 'Тексеруден кейін шебер не табылғанын және әрі қарай не істеу керегін түсіндіреді.'],
+    ['Ақауға сай жөндеу', 'Бәрін қатар емес, тек ақаулы компонентті жөндеу немесе ауыстыру.'],
+    ['Әртүрлі маркалар', 'Хабарландыруда барлық маркадағы автокөліктерді диагностикалау және жөндеу көрсетілген.'],
+    ['Ыңғайлы формат', 'Қала орталығындағы шеберханаға келуге немесе шақыртуды келісуге болады.']
+  ],
+  processEyebrow: 'Жұмыс қалай өтеді',
+  processTitle: 'Өтініштен жөнделген автокөлікке дейін',
+  process: [
+    ['Мәселені сипаттаңыз', 'Маркасы, моделі, жылы және белгілері тексеруді неден бастау керегін түсінуге көмектеседі.'],
+    ['Форматты келісіңіз', 'Автокөлік күйі мен мекенжайға қарай шеберхана немесе шақырту.'],
+    ['Тексеру және себеп', 'Шебер қоректі, сигналдарды, сымдарды және байланысты компоненттерді тексереді.'],
+    ['Шешім', 'Нәтиже түсіндірілгеннен кейін жөндеу немесе ақаулы торапты ауыстыру келісіледі.']
+  ],
+  honest: 'Жалған уәдесіз',
+  honestTitle: 'Баға — мәселе анықталғаннан кейін',
+  honestText: 'Баға автокөлікке, ақаудың сипатына, іздеу уақытына және қажетті бөлшектерге байланысты. Белгілерді сипаттаңыз — шебер диагностика форматын және келесі қадамдарды нақтылайды.',
+  faq: [
+    { question: 'Автоэлектрикті тұрған жерге шақыруға бола ма?', answer: 'Иә, хабарландыруда шақырту көрсетілген. Мүмкіндігі мен уақыты мекенжайға, белгілерге және шебердің жүктемесіне байланысты — телефон немесе WhatsApp арқылы нақтылаңыз.' },
+    { question: 'Диагностика алдында не айту керек?', answer: 'Автокөліктің маркасын, моделін, жылын, не болғанын, қандай индикаторлар жанғанын және қозғалтқыштың іске қосылатынын айтыңыз. Қате суреттерін WhatsApp арқылы жіберуге болады.' },
+    { question: 'Тек қателерді оқуға бола ма?', answer: 'Компьютерлік диагностика деректерді оқуды және нәтижені түсіндіруді қамтиды. Қате коды әрқашан сынған бөлшекті тікелей көрсетпейді, сондықтан қосымша тексеру қажет болуы мүмкін.' },
+    { question: 'Неге аккумулятор бір түнде отырып қалады?', answer: 'Себебі токтың ағуы, ақаулы тұтынушы, сымдар немесе аккумулятордың өзі болуы мүмкін. Тыныштық тогын өлшеп, тізбектерді ретімен тексеру керек.' },
+    { question: 'Сымдарды жөндеуге кепілдік бар ма?', answer: 'OLX хабарландыруында сым қосылыстарына өмір бойғы кепілдік көрсетілген. Шарттары мен қолданылу аясын жөндеуге дейін шеберден міндетті түрде нақтылаңыз.' },
+    { question: 'Диагностика қанша тұрады?', answer: 'Тұрақты баға жарияланбаған. Құны автокөлікке, белгілерге және тексеру көлеміне байланысты; хабарласқанда нақтылау керек.' }
+  ],
+  contactEyebrow: 'Байланыс және жұмыс аумағы',
+  contactTitle: 'Қарағандыдағы автоэлектрик Берік',
+  location: 'Шеберхана орны',
+  locationText: 'Жаңа қала, Қазыбек би атындағы аудан. Келмес бұрын нақты орын мен уақытты келісіңіз.',
+  route: 'Яндекс Картада ашу',
+  area: 'Қарағанды бойынша шақырту',
+  areaText: 'Нақты мекенжайға шығу мүмкіндігін хабарласқанда нақтылаңыз.',
+  schedule: 'Уақыт келісім бойынша',
+  scheduleText: 'Расталған жұмыс кестесі жарияланбаған — келмес бұрын қоңырау шалыңыз немесе жазыңыз.',
+  finalTitle: 'Автокөлікке не болғанын айтып беріңіз',
+  finalText: 'Қоңырау шалыңыз немесе WhatsApp-қа маркасын, моделін, жылын және белгісін қысқаша жазыңыз.'
+};
+---
+
+<BaseLayout title={copy.meta} description={copy.description} schema={serviceSchema} locale={locale} routeKey="home">
+  <section class="home-hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">{isRu ? 'Берик · частный автоэлектрик' : 'Берік · жеке автоэлектрик'}</span>
+        <h1><span>{isRu ? 'Автоэлектрик в Караганде' : 'Қарағандыдағы автоэлектрик'}</span><small>{isRu ? '— диагностика и ремонт' : '— диагностика және жөндеу'}</small></h1>
+        <p class="hero-lead">{copy.lead}</p>
+        <ContactActions locale={locale} directions />
+        <ul class="hero-tags">{copy.tags.map((tag) => <li><Icon name="check" size={16} />{tag}</li>)}</ul>
+      </div>
+      <div class="hero-visual" aria-label={copy.visualText}>
+        <div class="visual-top"><span>12.6 V</span><span>CAN</span><span>OBD</span></div>
+        <svg viewBox="0 0 620 420" role="img" aria-label={isRu ? 'Схема электрической диагностики автомобиля' : 'Автокөлік электр диагностикасының сызбасы'}>
+          <path class="car-outline" d="M96 246 125 151c6-20 24-34 45-36l281-13c28-1 52 15 64 40l45 96 25 30v55H35v-48l61-29Z" />
+          <path class="car-detail" d="m143 202 26-58 274-12 39 72-339-2ZM112 244h392M84 323v31m442-31v31" />
+          <circle class="wheel" cx="144" cy="323" r="46" /><circle class="wheel" cx="475" cy="323" r="46" />
+          <path class="circuit orange" d="M62 269h109v-40h99v60h92v-88h152" />
+          <path class="circuit blue" d="M184 228v-55h112v55m66 61h102v-52h88" />
+          <circle class="node orange-fill" cx="171" cy="269" r="8" /><circle class="node blue-fill" cx="296" cy="173" r="8" /><circle class="node orange-fill" cx="362" cy="289" r="8" /><circle class="node blue-fill" cx="464" cy="289" r="8" />
+        </svg>
+        <div class="visual-caption"><strong>{copy.visualTitle}</strong><span>{copy.visualText}</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="choice-section section">
+    <div class="container">
+      <div class="section-heading"><span class="eyebrow">{copy.choose}</span><h2>{copy.chooseTitle}</h2></div>
+      <div class="choice-grid">
+        <article><span class="choice-icon"><Icon name="pin" size={28} /></span><div><h3>{copy.workshop}</h3><p>{copy.workshopText}</p><a href={business.maps.yandex} target="_blank" rel="noopener noreferrer" data-event="click_directions">{copy.route} <Icon name="arrow" size={18} /></a></div></article>
+        <article class="accent-card"><span class="choice-icon"><Icon name="key" size={28} /></span><div><h3>{copy.callout}</h3><p>{copy.calloutText}</p><a href={path(routes.callout[locale])}>{isRu ? 'Узнать о выезде' : 'Шақырту туралы білу'} <Icon name="arrow" size={18} /></a></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section symptoms-section">
+    <div class="container symptoms-grid">
+      <div class="sticky-copy"><span class="eyebrow">{copy.symptomsEyebrow}</span><h2>{copy.symptomsTitle}</h2><p>{copy.symptomsText}</p><a class="text-link" href={whatsappLink} target="_blank" rel="noopener noreferrer">{isRu ? 'Описать симптом в WhatsApp' : 'Белгіні WhatsApp-та сипаттау'} <Icon name="arrow" size={18} /></a></div>
+      <ul>{symptomList.map((item, index) => <li><span>{String(index + 1).padStart(2, '0')}</span>{item}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="section section-tint" id="services">
+    <div class="container">
+      <div class="section-heading wide-heading"><div><span class="eyebrow">{copy.servicesEyebrow}</span><h2>{copy.servicesTitle}</h2></div><p>{copy.servicesText}</p></div>
+      <div class="services-grid">{serviceList.map((service) => <ServiceCard service={service} locale={locale} />)}</div>
+    </div>
+  </section>
+
+  <section class="section approach-section">
+    <div class="container approach-grid">
+      <div><span class="eyebrow">{copy.approachEyebrow}</span><h2>{copy.approachTitle}</h2><p class="lead">{copy.approachText}</p><div class="meter"><span></span><span></span><span></span><span></span></div></div>
+      <div class="benefit-list">{copy.benefits.map(([title, text], index) => <article><span>{String(index + 1).padStart(2, '0')}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div>
+    </div>
+  </section>
+
+  <section class="section section-dark process-section">
+    <div class="container">
+      <div class="section-heading"><span class="eyebrow light">{copy.processEyebrow}</span><h2>{copy.processTitle}</h2></div>
+      <div class="process-grid light-cards">{copy.process.map(([title, text], index) => <article><span class="step-number">{index + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+    </div>
+  </section>
+
+  <section class="section price-section">
+    <div class="container price-card"><div><span class="eyebrow">{copy.honest}</span><h2>{copy.honestTitle}</h2></div><p>{copy.honestText}</p><a class="button button-primary" href={contactLinks.phone}><Icon name="phone" size={20} />{business.phoneDisplay}</a></div>
+  </section>
+
+  <FAQ items={copy.faq} title={isRu ? 'Частые вопросы' : 'Жиі қойылатын сұрақтар'} locale={locale} />
+
+  <section class="section contact-section" id="contacts">
+    <div class="container">
+      <div class="section-heading"><span class="eyebrow">{copy.contactEyebrow}</span><h2>{copy.contactTitle}</h2></div>
+      <div class="contact-grid">
+        <div class="contact-primary"><a class="big-phone" href={contactLinks.phone}>{business.phoneDisplay}</a><p>{isRu ? 'Звонок или сообщение в WhatsApp' : 'Қоңырау немесе WhatsApp хабарламасы'}</p><ContactActions locale={locale} compact /></div>
+        <div class="contact-facts">
+          <article><Icon name="pin" size={24} /><div><h3>{copy.location}</h3><p>{copy.locationText}</p><a href={business.maps.yandex} target="_blank" rel="noopener noreferrer" data-event="click_directions">{copy.route} <Icon name="arrow" size={17} /></a></div></article>
+          <article><Icon name="key" size={24} /><div><h3>{copy.area}</h3><p>{copy.areaText}</p></div></article>
+          <article><Icon name="clock" size={24} /><div><h3>{copy.schedule}</h3><p>{copy.scheduleText}</p></div></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta"><div class="container final-cta-inner"><div><span class="eyebrow light">{isRu ? 'Можно начать с сообщения' : 'Хабарламадан бастауға болады'}</span><h2>{copy.finalTitle}</h2><p>{copy.finalText}</p></div><ContactActions locale={locale} compact /></div></section>
+</BaseLayout>

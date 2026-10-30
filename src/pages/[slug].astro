@@ -1,0 +1,11 @@
+---
+import ServicePage from '../layouts/ServicePage.astro';
+import { getServicePages } from '../data/servicePages';
+
+export function getStaticPaths() {
+  return getServicePages('ru').map(({ slug, data }) => ({ params: { slug }, props: data }));
+}
+
+const props: any = Astro.props;
+---
+<ServicePage locale="ru" {...props} />

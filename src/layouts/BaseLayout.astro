@@ -1,0 +1,73 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { business, getBusinessSchema } from '../data/business';
+import '../styles/global.css';
+import type { Locale, RouteKey } from '../i18n';
+import { routes, ui } from '../i18n';
+
+interface Props {
+  title: string;
+  description: string;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+  locale?: Locale;
+  routeKey?: RouteKey;
+}
+
+const { title, description, schema, noindex = false, locale = 'ru', routeKey = 'home' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const alternateLocale: Locale = locale === 'ru' ? 'kk' : 'ru';
+const alternate = new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}${routes[routeKey][alternateLocale]}`, Astro.site);
+const schemas = [getBusinessSchema(locale), ...(Array.isArray(schema) ? schema : schema ? [schema] : [])];
+const whatsappLink = `https://wa.me/${business.whatsapp}?text=${encodeURIComponent(locale === 'ru' ? business.whatsappText : business.whatsappTextKz)}`;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#182638" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={locale} href={canonical} />
+    <link rel="alternate" hreflang={alternateLocale} href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}${routes[routeKey].ru}`, Astro.site)} />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={locale === 'ru' ? 'ru_KZ' : 'kk_KZ'} />
+    <meta property="og:locale:alternate" content={locale === 'ru' ? 'kk_KZ' : 'ru_KZ'} />
+    <meta property="og:site_name" content={business.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {schemas.map((item) => <script type="application/ld+json" set:html={JSON.stringify(item)} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Перейти к содержанию</a>
+    <Header locale={locale} routeKey={routeKey} />
+    <main id="main"><slot /></main>
+    <Footer locale={locale} />
+    <div class="mobile-contact-bar" aria-label={ui[locale].quick}>
+      <a href={`tel:${business.phone}`} data-event="click_phone">{ui[locale].phone}</a>
+      <a href={whatsappLink} target="_blank" rel="noopener noreferrer" data-event="click_whatsapp">WhatsApp</a>
+    </div>
+    <script is:inline>
+      document.addEventListener('click', (event) => {
+        const link = event.target.closest('[data-event]');
+        if (!link) return;
+        const eventName = link.dataset.event;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: eventName });
+        if (typeof window.ym === 'function' && window.__ymId) window.ym(window.__ymId, 'reachGoal', eventName);
+      });
+    </script>
+  </body>
+</html>

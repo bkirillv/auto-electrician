@@ -1,0 +1,41 @@
+---
+import Icon from './Icon.astro';
+import { business, contactLinks } from '../data/business';
+import { path } from '../utils/paths';
+import type { Locale, RouteKey } from '../i18n';
+import { routes, ui } from '../i18n';
+
+interface Props { locale?: Locale; routeKey?: RouteKey; }
+const { locale = 'ru', routeKey = 'home' } = Astro.props;
+const labels = ui[locale];
+const otherLocale: Locale = locale === 'ru' ? 'kk' : 'ru';
+const nav = [
+  [labels.services, `${routes.home[locale]}#services`],
+  [labels.callout, routes.callout[locale]],
+  [labels.diagnostics, routes.diagnostics[locale]],
+  [labels.wiring, routes.wiring[locale]],
+  [labels.contacts, routes.contacts[locale]]
+];
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href={path(routes.home[locale])} aria-label={locale === 'ru' ? 'Автоэлектрик Берик — главная' : 'Автоэлектрик Берік — басты бет'}>
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span><strong>БЕРИК</strong><small>{locale === 'ru' ? 'автоэлектрик · Караганда' : 'автоэлектрик · Қарағанды'}</small></span>
+    </a>
+    <nav class="desktop-nav" aria-label="Основная навигация">
+      {nav.map(([label, href]) => <a href={path(href)}>{label}</a>)}
+    </nav>
+    <a class="header-phone" href={contactLinks.phone} data-event="click_phone"><Icon name="phone" size={18} /><span>{business.phoneDisplay}</span></a>
+    <a class="language-switch" href={path(routes[routeKey][otherLocale])} lang={otherLocale} hreflang={otherLocale}>{otherLocale === 'ru' ? 'Рус' : 'Қаз'}</a>
+    <details class="mobile-nav">
+      <summary aria-label={labels.menu}><span></span><span></span><span></span></summary>
+      <nav aria-label="Мобильная навигация">
+        {nav.map(([label, href]) => <a href={path(href)}>{label}</a>)}
+        <a href={contactLinks.phone}>{business.phoneDisplay}</a>
+        <a href={path(routes[routeKey][otherLocale])} lang={otherLocale}>{otherLocale === 'ru' ? 'Русская версия' : 'Қазақша нұсқа'}</a>
+      </nav>
+    </details>
+  </div>
+</header>

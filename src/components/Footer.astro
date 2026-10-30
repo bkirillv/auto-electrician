@@ -1,0 +1,40 @@
+---
+import { business, contactLinks } from '../data/business';
+import { path } from '../utils/paths';
+import type { Locale } from '../i18n';
+import { routes, ui } from '../i18n';
+interface Props { locale?: Locale; }
+const { locale = 'ru' } = Astro.props;
+const labels = ui[locale];
+const whatsappLink = `https://wa.me/${business.whatsapp}?text=${encodeURIComponent(locale === 'ru' ? business.whatsappText : business.whatsappTextKz)}`;
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="brand footer-brand" href={path(routes.home[locale])}>
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span><strong>БЕРИК</strong><small>{locale === 'ru' ? 'автоэлектрик · Караганда' : 'автоэлектрик · Қарағанды'}</small></span>
+      </a>
+      <p>{labels.footerText}</p>
+    </div>
+    <div>
+      <h2>{labels.services}</h2>
+      <a href={path(routes.diagnostics[locale])}>{locale === 'ru' ? 'Диагностика автомобиля' : 'Автокөлік диагностикасы'}</a>
+      <a href={path(routes.wiring[locale])}>{locale === 'ru' ? 'Ремонт проводки' : 'Автокөлік сымдарын жөндеу'}</a>
+      <a href={path(routes.starting[locale])}>{locale === 'ru' ? 'Автомобиль не заводится' : 'Автокөлік іске қосылмайды'}</a>
+      <a href={path(routes.callout[locale])}>{locale === 'ru' ? 'Выезд автоэлектрика' : 'Автоэлектрикті шақырту'}</a>
+    </div>
+    <div>
+      <h2>{labels.contacts}</h2>
+      <a href={contactLinks.phone}>{business.phoneDisplay}</a>
+      <a href={whatsappLink} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <a href={business.olxUrl} target="_blank" rel="noopener noreferrer">{labels.olx}</a>
+      <span>{locale === 'ru' ? 'Караганда, Казахстан' : 'Қарағанды, Қазақстан'}</span>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© {new Date().getFullYear()} Автоэлектрик Берик</span>
+    <a href={path(routes.privacy[locale])}>{labels.privacy}</a>
+  </div>
+</footer>
